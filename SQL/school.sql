@@ -35,19 +35,23 @@ CREATE TABLE `admin` (
 
 LOCK TABLES `admin` WRITE;
 /*!40000 ALTER TABLE `admin` DISABLE KEYS */;
-INSERT INTO `admin` VALUES (1234,'qwerty@123'),(1235,'qwerty@124');
+INSERT INTO `admin` VALUES (101,'admin1');
 /*!40000 ALTER TABLE `admin` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `class`
+-- Table structure for table `student`
 --
 
-DROP TABLE IF EXISTS `class`;
+DROP TABLE IF EXISTS `student`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `class` (
+CREATE TABLE `student` (
   `s_id` int(11) NOT NULL,
+  `s_passwd` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `s_name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `dob` date DEFAULT NULL,
+  `s_email` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `subject_1` float DEFAULT NULL,
   `subject_2` float DEFAULT NULL,
   `subject_3` float DEFAULT NULL,
@@ -61,40 +65,12 @@ CREATE TABLE `class` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `class`
---
-
-LOCK TABLES `class` WRITE;
-/*!40000 ALTER TABLE `class` DISABLE KEYS */;
-/*!40000 ALTER TABLE `class` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `student`
---
-
-DROP TABLE IF EXISTS `student`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `student` (
-  `s_id` int(11) NOT NULL,
-  `s_passed` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `s_name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `dob` date DEFAULT NULL,
-  `s_phone` int(11) DEFAULT NULL,
-  `s_email` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`s_id`),
-  UNIQUE KEY `s_phone` (`s_phone`),
-  UNIQUE KEY `s_email` (`s_email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Dumping data for table `student`
 --
 
 LOCK TABLES `student` WRITE;
 /*!40000 ALTER TABLE `student` DISABLE KEYS */;
+INSERT INTO `student` VALUES (10001,'student1','Student 1','2000-05-17','student_1@gmail.com',80,86,71,92,88,417,83.4,'A'),(10002,'student2','Student 2','2000-02-06','student_2@gmail.com',69,63,77,52,80,341,68.2,'B');
 /*!40000 ALTER TABLE `student` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -107,13 +83,10 @@ DROP TABLE IF EXISTS `teacher`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `teacher` (
   `t_id` int(11) NOT NULL,
-  `t_passed` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `t_passwd` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `t_name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `t_phone` int(11) DEFAULT NULL,
   `t_email` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`t_id`),
-  UNIQUE KEY `t_phone` (`t_phone`),
-  UNIQUE KEY `t_email` (`t_email`)
+  PRIMARY KEY (`t_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -123,6 +96,7 @@ CREATE TABLE `teacher` (
 
 LOCK TABLES `teacher` WRITE;
 /*!40000 ALTER TABLE `teacher` DISABLE KEYS */;
+INSERT INTO `teacher` VALUES (1001,'teacher1','Teacher 1','teacher_1@gmail.com');
 /*!40000 ALTER TABLE `teacher` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -135,4 +109,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-03-06 15:07:43
+-- Dump completed on 2021-03-07  8:40:59

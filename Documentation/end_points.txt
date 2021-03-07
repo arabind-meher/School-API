@@ -1,0 +1,13 @@
+Student:
+    - student_login
+    - student_register
+
+Teacher:
+    - teacher_login
+    - teacher_register
+    - student_details (jwt)
+
+Admin:
+    - admin_login
+    - admin_register
+    - teacher_details (jwt)

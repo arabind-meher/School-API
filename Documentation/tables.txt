@@ -4,13 +4,9 @@
     - ID
     - Passwd
     - Name
-    - CLass
     - DOB
     - Phone No
     - Email
-
-- Student Class:
-    - S_ID
     - Subject [1-5]
     - Total
     - Percentage
@@ -20,8 +16,6 @@
     - ID
     - Passwd
     - Name
-    - Class
-    - Phone
     - Email
 
 - Admin:
