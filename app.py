@@ -8,6 +8,8 @@ from datetime import datetime
 
 import yaml
 
+from util import check_grade
+
 
 package = yaml.load(open('package.yaml'), Loader=yaml.FullLoader)
 
@@ -15,6 +17,7 @@ package = yaml.load(open('package.yaml'), Loader=yaml.FullLoader)
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql://{package['username']}:{package['passwd']}@localhost/school"
+app.config['JWT_SECRET_KEY'] = package['secret_key']
 
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
@@ -33,7 +36,6 @@ def seed_db():
         s_id=10001,
         s_passwd='student1',
         s_name='Student 1',
-        dob=datetime(2000, 5, 17).strftime('%Y-%m-%d'),
         s_email='student_1@gmail.com',
         subject_1=80,
         subject_2=86,
@@ -49,7 +51,6 @@ def seed_db():
         s_id=10002,
         s_passwd='student2',
         s_name='Student 2',
-        dob=datetime(2000, 2, 6).strftime('%Y-%m-%d'),
         s_email='student_2@gmail.com',
         subject_1=69,
         subject_2=63,
@@ -89,19 +90,103 @@ def drop_db():
     print('Database Dropped!')
 
 
-@app.route('/admin/<int:a_id>', methods=['GET'])
-def admin(a_id: int):
-    a = Admin.query.filter_by(a_id=a_id).first()
-    r = admin_schema.dump(a)
-    return jsonify(r), 200
+@app.route('/student-register', methods=['POST'])
+def student_register():
+    s_id = request.form['s_id']
+
+    student = Student.query.filter_by(s_id=s_id).first()
+    if not student:
+        passwd = request.form['passwd']
+        name = request.form['name']
+        email = request.form['email']
+        subject = list(map(int, request.form['subject'].split()))
+
+        total = sum(subject)
+        percent = total/5
+        grade = check_grade(percent)
+
+        new_student = Student(
+            s_id=s_id, s_passwd=passwd, s_name=name, s_email=email,
+            subject_1=subject[0], subject_2=subject[1], subject_3=subject[2], subject_4=subject[3], subject_5=subject[4],
+            total=total, percent=percent, grade=grade
+        )
+
+        db.session.add(new_student)
+        db.session.commit()
+
+        return jsonify(message='Student Registered Successfully.'), 201
+    else:
+        return jsonify(message='Student ID already exists.'), 409
 
 
-@app.route('/admin_list', methods=['GET'])
-def admin_list():
-    a = Admin.query.all()
-    print(a)
-    r = admins_schema.dump(a)
-    return jsonify(r), 200
+@app.route('/student-login/<int:s_id>/<string:passwd>', methods=['POST'])
+def student_login(s_id: int, passwd: str):
+    student = Student.query.filter_by(s_id=s_id, s_passwd=passwd).first()
+    if student:
+        access_token = create_access_token(identity=s_id)
+        return jsonify(message='Login Successfully.', token=access_token)
+    else:
+        return jsonify(message='Wrong id or passwd.'), 401
+
+
+@app.route('/teacher-register', methods=['POST'])
+def teacher_register():
+    t_id = request.form['t_id']
+
+    teacher = Teacher.query.filter_by(t_id=t_id).first()
+    if not teacher:
+        passwd = request.form['passwd']
+        name = request.form['name']
+        email = request.form['email']
+
+        new_teacher = Teacher(
+            t_id=t_id, t_passwd=passwd, t_name=name, t_email=email
+        )
+
+        db.session.add(new_teacher)
+        db.session.commit()
+
+        return jsonify(message='Teacher Registered Successfully.'), 201
+    else:
+        return jsonify(message='Teacher ID already exists.'), 409
+
+
+@app.route('/teacher-login/<int:t_id>/<string:passwd>', methods=['POST'])
+def techer_login(t_id: int, passwd: str):
+    teacher = Teacher.query.filter_by(t_id=t_id, t_passwd=passwd).first()
+    if teacher:
+        access_token = create_access_token(identity=t_id)
+        return jsonify(message='Login Successfully.', token=access_token)
+    else:
+        return jsonify(message='Wrong id or passwd.'), 401
+
+
+@app.route('/admin-register', methods=['POST'])
+def admin_register():
+    a_id = request.form['a_id']
+
+    admin = Admin.query.filter_by(a_id=a_id).first()
+    if not admin:
+        passwd = request.form['passwd']
+
+        new_admin = Admin(a_id=a_id, a_passwd=passwd)
+
+        db.session.add(new_admin)
+        db.session.commit()
+
+        return jsonify(message='Admin Registered Successfully.'), 201
+    else:
+        return jsonify(message='Admin ID already exists.'), 409
+
+
+@app.route('/admin-login/<int:a_id>/<string:passwd>', methods=['POST'])
+def admin_login(a_id: int, passwd: str):
+    admin = Admin.query.filter_by(a_id=a_id, a_passwd=passwd).first()
+    if admin:
+        access_token = create_access_token(identity=a_id)
+        return jsonify(message='Login Successfully.', token=access_token)
+    else:
+        return jsonify(message='Wrong id or passwd.'), 401
 
 
 class Student(db.Model):
@@ -109,7 +194,6 @@ class Student(db.Model):
     s_id = Column(Integer, primary_key=True, autoincrement=False)
     s_passwd = Column(String(25))
     s_name = Column(String(50))
-    dob = Column(Date)
     s_email = Column(String(25))
     subject_1 = Column(Float)
     subject_2 = Column(Float)
@@ -138,7 +222,7 @@ class Admin(db.Model):
 class StudentSchema(ma.Schema):
     class Meta:
         fields = (
-            's_id', 's_passwd', 's_name', 'dob', 's_email',
+            's_id', 's_passwd', 's_name', 's_email',
             'subject_1', 'subject_2', 'subject_3', 'subject_4', 'subject_5',
             'total', 'percent', 'grade'
         )
